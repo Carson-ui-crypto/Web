@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>漫點子 IdeaToon</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+
+  <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
+  <script src="script.js" defer></script>
+</head>
+
+<body>
+  <div class="phone-container">
+    <div id="scroll-detector"></div>
+    <div class="header-and-filter-sticky-wrapper" id="sticky-header">
+      <header class="header">
+        <div class="logo-area">
+          <span class="logo-cn">漫點子</span>
+          <span class="logo-en">IdeaToon.com</span>
+        </div>
+        <div class="header-right">
+          <!-- 🏆 頂部直立式排行榜入口 -->
+          <!-- 📊 頂部快捷排行按鈕 - 點擊直接跳轉 ranking.html -->
+          <a href="ranking.html" class="top-mini-ranking" id="topRankingBtn">
+            <div class="rank-circle-wrapper">
+              <iconify-icon icon="icon-park-outline:ranking-list" class="mini-rank-icon"></iconify-icon>
+              <span class="mini-rank-text">排行</span>
+            </div>
+          </a>
+          <div class="avatar-wrapper" title="未登入">
+            <div class="guest-avatar">
+              <span class="avatar-head"></span>
+              <span class="avatar-body"></span>
+            </div>
+          </div>
+        </div>
+      </header>
+      <div class="filter-section-wrapper">
+        <!-- 🟢 優化後的第二行：小說/漫畫切換 ＋ 橫向全寬動態搜尋欄 -->
+        <div class="type-switch">
+          <div class="tab-group">
+            <button class="tab-btn active">小說</button>
+            <button class="tab-btn">漫畫</button>
+          </div>
+
+          <!-- 🔍 搜尋欄重獲新生，佔據右側剩餘全寬空間 -->
+          <div class="sub-header-right">
+            <a href="search.html" class="search-bar-container">
+              <iconify-icon icon="tabler:search" class="search-bar-icon"></iconify-icon>
+              <span class="search-bar-placeholder">極樂街</span>
+            </a>
+          </div>
+        </div>
+
+        <hr class="divider" />
+
+        <!-- 分類與篩選列（維持原樣） -->
+        <div class="filter-bar-container">
+          <div class="dropdown-wrapper">
+            <div class="dropdown-trigger" id="dropdownTrigger">
+              <span>分類題材</span>
+              <iconify-icon icon="tabler:chevron-down" class="arrow-icon"></iconify-icon>
+            </div>
+
+            <div class="dropdown-menu" id="dropdownMenu">
+              <div class="filter-group">
+                <div class="category-grid">
+                  <div class="menu-item selected"><span>全部</span></div>
+                  <div class="menu-item"><span>美食</span></div>
+                  <div class="menu-item"><span>治愈</span></div>
+                  <div class="menu-item"><span>其他</span></div>
+                  <div class="menu-item"><span>系統</span></div>
+                  <div class="menu-item"><span>電競</span></div>
+                  <div class="menu-item"><span>格斗</span></div>
+                  <div class="menu-item"><span>恐怖</span></div>
+                  <div class="menu-item"><span>校園</span></div>
+                  <div class="menu-item"><span>科幻</span></div>
+                  <div class="menu-item"><span>奇幻</span></div>
+                  <div class="menu-item"><span>推理</span></div>
+                  <div class="menu-item"><span>兒童</span></div>
+                  <div class="menu-item"><span>社會</span></div>
+                  <div class="menu-item"><span>超自然</span></div>
+                  <div class="menu-item"><span>限制級</span></div>
+                  <div class="menu-item"><span>真人</span></div>
+                  <div class="menu-item"><span>後宮</span></div>
+                  <div class="menu-item"><span>生活</span></div>
+                  <div class="menu-item"><span>明星</span></div>
+                  <div class="menu-item"><span>運動</span></div>
+                  <div class="menu-item"><span>歷史</span></div>
+                  <div class="menu-item"><span>權謀</span></div>
+                  <div class="menu-item"><span>惡搞</span></div>
+                  <div class="menu-item"><span>職場</span></div>
+                  <div class="menu-item"><span>科普</span></div>
+                  <div class="menu-item"><span>古裝</span></div>
+                  <div class="menu-item"><span>百合</span></div>
+                  <div class="menu-item"><span>BL</span></div>
+                  <div class="menu-item"><span>同人</span></div>
+                  <div class="menu-item"><span>機甲</span></div>
+                  <div class="menu-item"><span>遊戲</span></div>
+                  <div class="menu-item"><span>偽娘</span></div>
+                  <div class="menu-item"><span>戰爭</span></div>
+                  <div class="menu-item"><span>性轉</span></div>
+                  <div class="menu-item"><span>穿越</span></div>
+                  <div class="menu-item"><span>重生</span></div>
+                  <div class="menu-item"><span>舞蹈</span></div>
+                  <div class="menu-item"><span>音樂</span></div>
+                  <div class="menu-item"><span>異能</span></div>
+                  <div class="menu-item"><span>末日</span></div>
+                </div>
+              </div>
+              <div class="menu-action-bar">
+                <button type="button" id="btnReset" class="action-btn btn-reset">重置</button>
+                <button type="button" id="btnConfirm" class="action-btn btn-confirm">確定</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="right-filters-group">
+            <div class="dropdown-wrapper">
+              <div class="combined-dropdown-trigger" id="combinedTrigger">
+                <span id="combinedTriggerText">地區·免費</span>
+                <iconify-icon icon="tabler:chevron-down" class="combined-arrow-icon"></iconify-icon>
+              </div>
+
+              <div class="combined-dropdown-menu" id="combinedMenu">
+                <div class="sub-filter-row">
+                  <div class="row-title">地區</div>
+                  <div class="row-options" id="regionOptions">
+                    <div class="row-item selected" data-value="全部">全部</div>
+                    <div class="row-item" data-value="大陸">大陸</div>
+                    <div class="row-item" data-value="台灣">台灣</div>
+                    <div class="row-item" data-value="香港">香港</div>
+                    <div class="row-item" data-value="其他">其他</div>
+                  </div>
+                </div>
+
+                <div class="sub-filter-row">
+                  <div class="row-title">付費</div>
+                  <div class="row-options" id="priceOptions">
+                    <div class="row-item" data-value="全部">全部</div>
+                    <div class="row-item selected" data-value="免費">免費</div>
+                    <div class="row-item" data-value="等就免費">等就免費</div>
+                    <div class="row-item" data-value="限時免費">限時免費</div>
+                    <div class="row-item" data-value="付費">付費</div>
+                  </div>
+                </div>
+                <div class="menu-action-bar">
+                  <button class="action-btn btn-reset" id="combinedResetBtn">重置</button>
+                  <button class="action-btn btn-confirm" id="combinedConfirmBtn">確定</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="dropdown-wrapper">
+              <div class="sort-dropdown-trigger">
+                <span id="sortTriggerText">最新更新</span>
+                <iconify-icon icon="tabler:chevron-down" class="sort-arrow-icon"></iconify-icon>
+              </div>
+              <div class="sort-dropdown-menu">
+                <div class="sort-menu-item selected" data-target="manga-latest">
+                  最新更新
+                </div>
+                <div class="sort-menu-item" data-target="manga-popular">
+                  人氣推薦
+                </div>
+                <div class="sort-menu-item" data-target="manga-incoming">
+                  上架時間
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 標籤與狀態區 -->
+        <div class="tags-container">
+          <span class="tag-badge selected">全部</span>
+          <span class="tag-badge">熱血</span>
+          <span class="tag-badge">戀愛</span>
+          <span class="tag-badge">冒險</span>
+          <span class="tag-badge">玄幻</span>
+          <span class="tag-badge">懸疑</span>
+          <span class="tag-badge tag-funny">搞笑</span>
+          <div class="status-section">
+            <div class="menu-item2 selected">全部</div>
+            <div class="menu-item2">連載中</div>
+            <div class="menu-item2">完結</div>
+          </div>
+        </div>
+        <div id="screenOverlay" class="screen-overlay"></div>
+      </div>
+    </div>
+
+    <!-- 🌟🌟 全新：大廠級手機端固定底部五星導航欄 🌟🌟 -->
+    <div class="bottom-nav-bar">
+      <a href="index.html" class="nav-item active">
+        <iconify-icon icon="solar:home-smile-angle-linear" class="nav-icon"></iconify-icon>
+        <span class="nav-text">首頁</span>
+      </a>
+
+      <a href="welfare.html" class="nav-item">
+        <iconify-icon icon="solar:bag-3-linear" class="nav-icon"></iconify-icon>
+        <span class="nav-text">福利</span>
+      </a>
+
+      <a href="submit.html" class="nav-item">
+        <iconify-icon icon="solar:pen-new-square-linear" class="nav-icon"></iconify-icon>
+        <span class="nav-text">投稿</span>
+      </a>
+
+      <a href="bookshelf.html" class="nav-item">
+        <iconify-icon icon="solar:notebook-linear" class="nav-icon"></iconify-icon>
+        <span class="nav-text">書架</span>
+      </a>
+
+      <a href="profile.html" class="nav-item">
+        <iconify-icon icon="solar:user-linear" class="nav-icon"></iconify-icon>
+        <span class="nav-text">我的</span>
+      </a>
+    </div>
+
+
+
+    <div class="content-manga-grid" id="mangaGrid">
+      <div class="manga-card">
+        <div class="manga-cover-wrapper">
+          <img src="https://picsum.photos/id/1025/300/400" alt="封面" class="manga-cover" />
+        </div>
+        <div class="manga-detail">
+          <h4 class="manga-title">茶啊二中</h4>
+          <div class="manga-tags">
+            <span class="manga-sub-tag">青春</span><span class="manga-sub-tag">校園</span>
+          </div>
+          <span class="manga-update-status">更新至 42 話</span>
+        </div>
+      </div>
+
+      <div class="manga-card">
+        <div class="manga-cover-wrapper">
+          <img src="https://picsum.photos/id/1031/300/400" alt="封面" class="manga-cover" />
+        </div>
+        <div class="manga-detail">
+          <h4 class="manga-title">極樂街</h4>
+          <div class="manga-tags">
+            <span class="manga-sub-tag">熱血</span><span class="manga-sub-tag">冒險</span>
+          </div>
+          <span class="manga-update-status">更新至 15 話</span>
+        </div>
+      </div>
+
+      <div class="manga-card">
+        <div class="manga-cover-wrapper">
+          <img src="https://picsum.photos/id/1062/300/400" alt="封面" class="manga-cover" />
+        </div>
+        <div class="manga-detail">
+          <h4 class="manga-title">間諜家家酒</h4>
+          <div class="manga-tags">
+            <span class="manga-sub-tag">搞笑</span><span class="manga-sub-tag">治癒</span>
+          </div>
+          <span class="manga-update-status">更新至 98 話</span>
+        </div>
+      </div>
+
+      <div class="manga-card">
+        <div class="manga-cover-wrapper">
+          <img src="https://picsum.photos/id/1069/300/400" alt="封面" class="manga-cover" />
+        </div>
+        <div class="manga-detail">
+          <h4 class="manga-title">怪獸8號</h4>
+          <div class="manga-tags">
+            <span class="manga-sub-tag">科幻</span><span class="manga-sub-tag">熱血</span>
+          </div>
+          <span class="manga-update-status">更新至 110 話</span>
+        </div>
+      </div>
+
+      <div class="manga-card">
+        <div class="manga-cover-wrapper">
+          <img src="https://picsum.photos/id/225/300/400" alt="封面" class="manga-cover" />
+        </div>
+        <div class="manga-detail">
+          <h4 class="manga-title">鏈鋸人</h4>
+          <div class="manga-tags">
+            <span class="manga-sub-tag">懸疑</span><span class="manga-sub-tag">暗黑</span>
+          </div>
+          <span class="manga-update-status">更新至 165 話</span>
+        </div>
+      </div>
+
+      <div class="manga-card">
+        <div class="manga-cover-wrapper">
+          <img src="https://picsum.photos/id/250/300/400" alt="封面" class="manga-cover" />
+        </div>
+        <div class="manga-detail">
+          <h4 class="manga-title">咒術迴戰</h4>
+          <div class="manga-tags">
+            <span class="manga-sub-tag">奇幻</span><span class="manga-sub-tag">動作</span>
+          </div>
+          <span class="manga-update-status">全 271 話</span>
+        </div>
+      </div>
+
+      <div class="manga-card">
+        <div class="manga-cover-wrapper">
+          <img src="https://picsum.photos/id/274/300/400" alt="封面" class="manga-cover" />
+        </div>
+        <div class="manga-detail">
+          <h4 class="manga-title">排球少年</h4>
+          <div class="manga-tags">
+            <span class="manga-sub-tag">運動</span><span class="manga-sub-tag">熱血</span>
+          </div>
+          <span class="manga-update-status">全 402 話</span>
+        </div>
+      </div>
+
+      <div class="manga-card">
+        <div class="manga-cover-wrapper">
+          <img src="https://picsum.photos/id/342/300/400" alt="封面" class="manga-cover" />
+        </div>
+        <div class="manga-detail">
+          <h4 class="manga-title">一拳超人</h4>
+          <div class="manga-tags">
+            <span class="manga-sub-tag">搞笑</span><span class="manga-sub-tag">格鬥</span>
+          </div>
+          <span class="manga-update-status">更新至 240 話</span>
+        </div>
+      </div>
+
+      <div class="manga-card">
+        <div class="manga-cover-wrapper">
+          <img src="https://picsum.photos/id/365/300/400" alt="封面" class="manga-cover" />
+        </div>
+        <div class="manga-detail">
+          <h4 class="manga-title">鬼滅之刃</h4>
+          <div class="manga-tags">
+            <span class="manga-sub-tag">古裝</span><span class="manga-sub-tag">冒險</span>
+          </div>
+          <span class="manga-update-status">全 205 話</span>
+        </div>
+      </div>
+      <!-- 🎯 核心優化：在列表最後方加入這個純淨隱形觀測點，用來精準觸發加載 -->
+      <div id="infinite-scroll-anchor" style="grid-column: 1 / -1; min-height: 50px; width: 100%; position: relative;">
+        <div id="scroll-loading-text" class="loading-text-container">頁面正在努力奔跑中，別拋下我 QAQ</div>
+      </div>
+    </div>
+</body>
+
+</html>
