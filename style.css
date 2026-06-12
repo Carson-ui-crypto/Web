@@ -1,0 +1,1476 @@
+/* ==========================================================================
+   🖤 【全畫面高質感變灰遮罩層】— 純 CSS 三合一全域共享版
+   ========================================================================== */
+.screen-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+
+  /* 🕵️‍♂️ B站大廠級：65% 透明度純黑 */
+  background-color: rgba(0, 0, 0, 0.65);
+
+  /* 🎯 精準層級：高於漫畫卡片 (mangaGrid)，但低於 Header、底部導航與所有下拉選單 */
+  z-index: 9990 !important;
+
+  /* 🎬 預設隱藏：完全透明、不可點擊 */
+  opacity: 0;
+  pointer-events: none;
+
+  /* ✨ 0.3秒大廠級絲滑淡入淡出曲線 */
+  transition: opacity 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  will-change: opacity;
+}
+
+/* ==========================================================================
+   🎯 【純 CSS 核心控制】當那三個 Trigger 被激活或點擊時
+   ========================================================================== */
+.filter-section-wrapper:has(#dropdownTrigger.active) #screenOverlay,
+.filter-section-wrapper:has(#combinedTrigger.active) #screenOverlay,
+.filter-section-wrapper:has(.sort-dropdown-trigger.active) #screenOverlay,
+#dropdownTrigger:active ~ #screenOverlay,
+#combinedTrigger:active ~ #screenOverlay,
+.sort-dropdown-trigger:active ~ #screenOverlay {
+  opacity: 1;
+  pointer-events: auto; /* 變回可點擊狀態，攔截點擊 */
+
+  /* 🛑 【神級防禦核心】告訴瀏覽器：當遮罩出現時，完全禁止在這個區域做任何手勢！
+     這行一加，用戶喺變灰嘅漫畫區域點樣搓、點樣滑，底層網頁都絕對唔會郁！ */
+  touch-action: none !important;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: #f5f6f8;
+  color: #222222;
+  display: flex;
+  justify-content: center;
+  /* 🌟 核心黑魔法：強制網頁比電腦螢幕高出少少，百分之百逼出瀏覽器滾動條！ */
+  min-height: 101vh !important;
+}
+
+.phone-container {
+  width: 100%;
+  max-width: 460px;
+  min-height: 100vh;
+  background-color: #ffffff;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  padding: 16px;
+  padding-bottom: 76px; /* 🎯 關鍵追加：留出 76px 空間，防止最底部的瀑布流卡片被導航欄遮住 */
+  box-sizing: border-box;
+  position: relative; /* 🎯 關鍵追加：作為底部導航欄絕對定位的基準外殼 */
+  touch-action: pan-y !important;
+}
+
+/* ==========================================================================
+      📱 第一行：頂部導航欄（Logo ＋ 頭像）
+   ========================================================================== */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  width: 100%; /* 確保撐滿 */
+  box-sizing: border-box;
+  padding-top: 20px; /* 順便幫頂部加點留白，看起來更精緻 */
+  padding: 0 11px; /* 頂部導航欄左右微調內縮，確保頭像不會貼邊 */
+}
+
+.logo-area {
+  display: flex;
+  flex-direction: column;
+}
+
+.logo-cn {
+  font-size: 20px;
+  font-weight: bold;
+  color: #27ae60;
+  letter-spacing: 1px;
+}
+
+.logo-en {
+  font-size: 11px;
+  color: #888888;
+  margin-top: 2px;
+}
+
+/* 右側功能區 */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* 圓形頭像外框（死死對齊右邊界） */
+.avatar-wrapper {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background-color: #dedede;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.avatar-wrapper:hover {
+  transform: scale(1.05);
+  background-color: #d0d0d0;
+}
+
+.guest-avatar {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.avatar-head {
+  width: 10px;
+  height: 10px;
+  background-color: #8a8a8a;
+  border-radius: 50%;
+  position: absolute;
+  top: 7px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.avatar-body {
+  width: 22px;
+  height: 14px;
+  background-color: #8a8a8a;
+  border-top-left-radius: 11px;
+  border-top-right-radius: 11px;
+  position: absolute;
+  bottom: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* ==========================================================================
+      🔍 第二行：小說/漫畫切換 ＋ 橫向全寬動態搜尋欄（解放空間）
+   ========================================================================== */
+.type-switch {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.tab-group {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0; /* 防止小說/漫畫按鈕被擠壓變形 */
+}
+
+.tab-btn {
+  background-color: #eaeaea;
+  color: #666666;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.tab-btn.active {
+  background-color: #222222;
+  color: #ffffff;
+}
+
+/* 右側包裝層自動拉伸，吞噬所有剩餘空間 */
+.sub-header-right {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+}
+
+/* 搜尋欄主體：大氣、橫跨全寬 */
+.search-bar-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #f5f6f9;
+  padding: 8px 14px;
+  border-radius: 20px;
+  width: 100%; /* 🌟 核心：100% 填滿整個右邊剩餘空間 */
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  /* 🌟 【終極去底線補丁】 */
+  text-decoration: none !important; /* 徹底殺死超連結的預設底線 */
+  border-bottom: none !important; /* 防止某些框架誤加了下邊框 */
+}
+
+.search-bar-container:hover {
+  background-color: #eaeaea;
+}
+
+.search-bar-icon {
+  font-size: 16px;
+  color: #666666;
+  display: flex;
+  align-items: center;
+}
+
+.search-bar-placeholder {
+  font-size: 13px;
+  color: #999999;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.divider {
+  border: 0;
+  border-top: 1px solid #eeeeee;
+  margin-bottom: 12px;
+}
+
+/* ==========================================================================
+      🎯 工具列篩選結構（大面板絕對定位基準）
+   ========================================================================== */
+.filter-bar-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.dropdown-wrapper {
+  display: inline-block;
+}
+
+.dropdown-trigger,
+.combined-dropdown-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: #666666;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s ease;
+}
+
+.arrow-icon,
+.sort-arrow-icon,
+.combined-arrow-icon {
+  font-size: 12px;
+  color: #999999;
+  transition: transform 0.2s;
+}
+
+.dropdown-trigger.active .arrow-icon,
+.sort-dropdown-trigger.active .sort-arrow-icon,
+.combined-dropdown-trigger.active .combined-arrow-icon {
+  color: #27ae60;
+  transform: rotate(180deg);
+}
+
+.dropdown-trigger.active,
+.sort-dropdown-trigger.active,
+.combined-dropdown-trigger.active {
+  color: #27ae60;
+}
+
+/* ==========================================================================
+      🌟 統一三大全寬面版
+   ========================================================================== */
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  width: 100%;
+  margin-top: 8px;
+  background-color: #111111;
+  max-height: 260px;
+  overflow-y: auto;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  z-index: 9999 !important;
+  padding: 16px 12px;
+  border: 1px solid #222222;
+  box-sizing: border-box;
+}
+
+.dropdown-menu.show {
+  display: flex;
+}
+
+.filter-group {
+  width: 100%;
+}
+
+.category-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 6px;
+}
+
+.dropdown-menu .menu-item {
+  box-sizing: border-box;
+  flex: 0 0 calc(25% - 5px);
+  min-width: 74px;
+  padding: 6px 2px;
+  font-size: 13px;
+  color: #ffffff;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+}
+
+.dropdown-menu .menu-item.selected span {
+  color: #27ae60 !important;
+  font-weight: bold;
+}
+
+.combined-dropdown-menu,
+.sort-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  width: 100%;
+  margin-top: 8px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  z-index: 9999 !important;
+  padding: 16px 14px;
+  border: 1px solid #eeeeee;
+  box-sizing: border-box;
+}
+
+.combined-dropdown-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ➔ 修改：移除「最新更新」最外層的圓形背景與外框 */
+.sort-dropdown-trigger {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  padding: 6px 4px;      /* 拿走圓框後，縮窄左右 padding 讓文字完美對齊邊界 */
+  background: none;      /* 拔除灰色圓形背景 */
+  border: none;          /* 確保沒有任何邊框 */
+  border-radius: 0;      /* 歸零圓角 */
+  font-size: 13px;
+  font-weight: 500;
+  color: #666666;
+  transition: opacity 0.2s;
+}
+
+/* 預設隱藏的下拉選單容器 */
+.sort-dropdown-menu {
+  display: none; 
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background-color: #FFFFFF;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  padding: 8px;          /* 微調內邊距 */
+  min-width: 130px; 
+  z-index: 2100;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* 當加上 .show class 時才顯示出來 */
+.sort-dropdown-menu.show {
+  display: flex;
+}
+
+/* 每一排按鈕的樣式 */
+.sort-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; 
+  padding: 10px 12px;
+  font-size: 13px;
+  color: #57606F;
+  border-radius: 6px;     /* 保留下拉選單內部微小圓角，以便 hover 灰色時好看 */
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+/* ➔ 修改：選中（Active）那一排文字時，完全「不加任何圓形底框」 */
+.sort-menu-item.selected {
+  background-color: transparent; /* 🛠️ 徹底移去選中時的灰色/藍色圓底框 */
+  color: #27ae60;               /* 純粹用文字顏色變綠色來代表選中 */
+  font-weight: 600;
+}
+
+/* 自動喺選中嘅項目右邊加上「✓」剔號 */
+.sort-menu-item.selected::after {
+  content: '✓';             
+  font-size: 14px;          
+  font-weight: 700;         
+  color: #27ae60;           
+  margin-left: 12px;        
+}
+
+.sub-filter-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.row-title {
+  font-size: 13px;
+  font-weight: bold;
+  color: #222222;
+  text-align: left;
+}
+
+.row-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.row-item {
+  padding: 6px 14px;
+  font-size: 13px;
+  color: #555555;
+  background-color: #f5f6f9;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+
+.row-item.selected {
+  background-color: rgba(39, 174, 96, 0.1) !important;
+  color: #27ae60 !important;
+  font-weight: bold;
+}
+
+.combined-dropdown-menu:not(.show) {
+  display: none !important;
+}
+
+.dropdown-menu::-webkit-scrollbar {
+  width: 4px;
+}
+.dropdown-menu::-webkit-scrollbar-thumb {
+  background: #666666;
+  border-radius: 2px;
+}
+
+/* ==========================================================================
+   🟢 【單純針對：分類題材大黑板】大廠級鎖底與滾動專屬樣式
+   ========================================================================== */
+#dropdownMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  width: 100%;
+  margin-top: 8px;
+  border-radius: 14px;
+  z-index: 9999 !important;
+  box-sizing: border-box;
+  background-color: rgba(17, 17, 17, 0.98);
+  border: 1px solid #222222;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+
+  /* 🎯 核心規格：高度固定（可依你喜好調 300px~380px），外殼切勿溢出 */
+  height: 350px !important;
+  max-height: 350px !important;
+  display: none;
+  flex-direction: column !important; /* 分層：上內容、下按鈕 */
+  padding: 0 !important;
+  overflow: hidden !important;
+  touch-action: pan-y; /* 強力屏蔽左右晃動，只准上下滑 */
+  /* 🎯 核心防線一：絕對不准任何東西在橫向爆出來，鎖死左右晃動 */
+  overflow-x: hidden !important;
+}
+
+#dropdownMenu.show {
+  display: flex !important;
+}
+
+/* 📜 文字題材滾動層：開啟純原生、最絲滑的系統滑動 */
+#dropdownMenu .filter-group {
+  flex: 1 !important;
+  overflow-y: auto !important; /* 🎯 讓 40 個題材文字在這裡純原生滾動 */
+  padding: 20px 16px 12px 16px !important;
+  -webkit-overflow-scrolling: touch !important; /* ✨ 激活 iOS 絲滑滾動與物理慣性 */
+  box-sizing: border-box;
+  overflow-y: auto !important; /* 垂直方向：允許滾動 */
+
+  /* 🎯 核心防線二：強制鎖死橫向滾動條 */
+  overflow-x: hidden !important;
+
+  /* 🎯 核心防線三：大廠級黑魔法！告訴瀏覽器這個區域「只准處理垂直手勢」
+     這行一加，手機瀏覽器就會自動忽略所有左右方向的滑動訊號，滑動體驗會變得極之扎實！ */
+  touch-action: pan-y !important;
+}
+
+/* 隱藏原生滾動條 */
+#dropdownMenu .filter-group::-webkit-scrollbar {
+  display: none !important;
+}
+
+/* 📥 按鈕欄：永遠霸佔最底 */
+#dropdownMenu .menu-action-bar {
+  margin-top: auto !important;
+  flex-shrink: 0 !important;
+  display: flex !important;
+  gap: 12px;
+  padding: 16px 20px !important;
+  box-sizing: border-box;
+  width: 100%;
+  background-color: #161616;
+  border-top: 1px solid #222222;
+  border-bottom-left-radius: 14px;
+  border-bottom-right-radius: 14px;
+}
+
+/* ==========================================================================
+   📺 完美復刻嗶哩嗶哩（Bilibili）高質感膠囊按鈕欄
+   ========================================================================== */
+#dropdownMenu .menu-action-bar {
+  margin-top: auto !important;
+  flex-shrink: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+
+  /* 🎯 寬度比例配置：B站大廠級經典 3:6 比例黃金分割 */
+  gap: 14px !important;
+  padding: 14px 20px 20px 20px !important; /* 留白對齊大廠視覺 */
+  box-sizing: border-box;
+  width: 100%;
+
+  /* 毛玻璃/微調黑底色，與上方文字滾動層產生視覺落差 */
+  background: linear-gradient(
+    to bottom,
+    rgba(22, 22, 22, 0.95),
+    rgba(16, 16, 16, 0.98)
+  ) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.05); /* 極細微精緻頂邊線 */
+  border-bottom-left-radius: 14px;
+  border-bottom-right-radius: 14px;
+}
+
+/* 🎯 按鈕公用核心結構 */
+#dropdownMenu .menu-action-bar .action-btn {
+  height: 44px !important; /* 標準大廠移動端操作高度 */
+  line-height: 44px !important;
+  padding: 0 !important;
+  border-radius: 22px !important; /* ✨ 完美膠囊大圓角 (高度的一半) */
+  font-size: 15px !important; /* 字體清晰適中 */
+  font-weight: 600 !important; /* 粗體突出 */
+  cursor: pointer;
+  text-align: center;
+  box-sizing: border-box;
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* 🔄 左邊【重置】按鈕：復刻 B站暗黑版低調內斂高質感 */
+#dropdownMenu .menu-action-bar .btn-reset {
+  flex: 3.5 !important; /* 佔較窄比例 */
+  background-color: rgba(255, 255, 255, 0.06) !important; /* 半透明石墨黑 */
+  color: #aaaaaa !important; /* 次要低調字體色 */
+  border: 1px solid rgba(255, 255, 255, 0.12) !important; /* 極細微邊框 */
+}
+
+/* 🚀 右邊【確定】按鈕：復刻 B站高飽和度核心焦點按鈕 */
+#dropdownMenu .menu-action-bar .btn-confirm {
+  flex: 6.5 !important; /* 佔較寬比例，引導用家去撳佢 */
+  background-color: #27ae60 !important; /* 🟢 漫點子品牌綠（想完全變B站藍可換成 #00aeec） */
+  color: #ffffff !important; /* 純白字 */
+  border: none !important;
+  box-shadow: 0 4px 12px rgba(39, 174, 96, 0.2); /* 微微的品牌色發光陰影 */
+}
+
+/* 📱 觸控反饋：按下去的時候有微小的下陷感與微調透明度 */
+#dropdownMenu .menu-action-bar .action-btn:active {
+  transform: scale(0.96) !important;
+  opacity: 0.85 !important;
+}
+
+/* 標籤群與狀態列 */
+.tags-container {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  max-width: 420px;
+  margin-bottom: 8px;
+}
+
+.tag-badge {
+  background-color: #f0f0f2;
+  color: #444444;
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.tag-badge.selected {
+  background-color: rgba(39, 174, 96, 0.1);
+  color: #27ae60;
+}
+
+.status-section {
+  display: flex;
+  gap: 8px;
+}
+
+.menu-item2 {
+  padding: 4px 10px;
+  font-size: 11px;
+  color: #555555;
+  background-color: #f5f6f9;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.menu-item2.selected {
+  background-color: rgba(39, 174, 96, 0.1);
+  color: #27ae60;
+}
+
+/* 強制覆蓋所有現有樣式，確保按鈕欄生效 */
+#combinedMenu .menu-action-bar {
+  margin-top: auto !important;
+  flex-shrink: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  padding: 14px 20px 20px 20px !important; /* 留白對齊大廠視覺 */
+  box-sizing: border-box;
+  width: 100% !important;
+  background: #ffffff !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.05) !important;
+  z-index: 10 !important;
+}
+
+/* 🎯 按鈕公用核心結構 (延用你的樣式) */
+#combinedMenu .menu-action-bar .action-btn {
+  height: 48px !important;
+  line-height: 44px !important;
+  padding: 0 !important;
+  border-radius: 22px !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  cursor: pointer;
+  text-align: center;
+  box-sizing: border-box;
+  outline: none !important;
+  transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* 🔄 重置按鈕 */
+#combinedMenu .menu-action-bar .btn-reset {
+  flex: 3.5 !important;
+  background-color: #f4f4f4 !important;
+  color: #666 !important;
+  border: 1px solid #e0e0e0 !important;
+}
+
+/* 🚀 確定按鈕 */
+#combinedMenu .menu-action-bar .btn-confirm {
+  flex: 6.5 !important;
+  background-color: #27ae60 !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 4px 12px rgba(39, 174, 96, 0.2);
+}
+
+/* 觸控反饋 */
+#combinedMenu .menu-action-bar .action-btn:active {
+  transform: scale(0.96) !important;
+  opacity: 0.85 !important;
+}
+
+/* ==========================================================================
+      🏆 終極無敵置中版：徹底破解父級 Flex 橫向干擾
+   ========================================================================== */
+
+/* 1. 最外層：純粹作為滑鼠觸發的外殼 */
+.top-mini-ranking {
+  display: inline-block !important;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  margin: 0 !important;
+  padding: 0 !important;
+  gap: 2 !important;
+  text-decoration: none; /* 移除超連結底線 */
+}
+
+/* 整個組件 Hover 時一體化放大 */
+.top-mini-ranking:hover {
+  transform: scale(1.06) translateY(-1px);
+}
+
+/* 2. 🎯 核心大改造：圓圈外殼（現在是文字和 Icon 的溫馨小家） */
+.rank-circle-wrapper {
+  width: 34px !important; /* 🎯 稍微放大到 44px，否則塞唔落 Icon 同字 */
+  height: 34px !important;
+  border-radius: 50% !important; /* 完美的純圓形 */
+  background-color: #f5f6f9 !important; /* 高級微灰底色 */
+  border: 1px solid #eaeaea !important;
+  box-sizing: border-box !important;
+
+  /* 🌟 靈魂設定：開啟垂直 Flex 模式，讓裡面的 Icon 和文字在圓圈內上下緊湊排好 */
+  display: flex !important;
+  flex-direction: column !important; /* 上下垂直排列 */
+  justify-content: center !important; /* 垂直絕對居中 */
+  align-items: center !important; /* 水平絕對居中 */
+  gap: 2px !important; /* Icon 同文字在圓圈內部的超微距 */
+
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* Hover 時圓圈內襯底色加深 */
+.top-mini-ranking:hover .rank-circle-wrapper {
+  background-color: #eaeaea !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* 3. 📊 Ranking Icon 縮小微調 */
+.mini-rank-icon {
+  font-size: 16px !important; /* 🎯 微調縮小到 16px，幫下面的文字留出空間 */
+  color: #5a6472 !important;
+  display: flex !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+}
+
+/* 4. 📝 圓圈內部的「排行」細小文字 */
+.mini-rank-text {
+  display: block !important;
+  font-size: 8.5px !important; /* 🎯 採用 9px 極細大廠字體，確保不會擠出圓圈 */
+  font-weight: 600 !important; /* 稍微加粗，確保高清晰度 */
+  color: #666666 !important; /* 高級灰色 */
+  line-height: 1 !important; /* 死死鎖定行高，防止文字向下掉出圈外 */
+  letter-spacing: 0px !important; /* 緊湊字距 */
+  text-align: center !important;
+  white-space: nowrap !important; /* 絕對不准換行 */
+}
+
+/* ==========================================================================
+      📱 底部導航欄：強力鎖底、永不移位補丁
+   ========================================================================== */
+
+.bottom-nav-bar {
+  position: fixed; /* 🎯 保持固定定位，浮喺螢幕最底 */
+  bottom: 0; /* 鎖死在視窗最底端 */
+  left: 50%; /* 配合手機殼置中 */
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 460px; /* 死死對齊你 phone-container 嘅寬度 */
+
+  height: 60px; /* 固定導航欄高度 */
+  background-color: #ffffff;
+  border-top: 1px solid #eaeaea;
+
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 9999; /* 權重開大，確保浮喺最頂層 */
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+
+  /* 🛑 【大廠防漏罅核心一】：焊死左右邊界 */
+  /* 有時 left: 50% 加 transform 喺個別瀏覽器會計錯 0.5px 導致左右漏光，
+     加上呢兩行可以強制將左右拉實喺外殼邊緣！ */
+  margin-left: 0;
+  margin-right: 0;
+
+  /* 🛑 【大廠防漏罅核心二】：向下延伸「無形防漏圍欄」 */
+  /* 呢個係黑魔法：幫導航欄下方加上一個 10px 嘅 padding，再用負 margin 扯返上去。
+     咁樣導航欄本體高度冇變，但佢嘅底色（#ffffff）實際上向外延伸咗 10px，
+     無論手機網頁點樣拉扯回彈，底下一丁點罅縫都會被呢 10px 嘅白底死死擋住，絕不漏光！ */
+  padding-bottom: 10px !important;
+  margin-bottom: -10px !important;
+
+  /* 確保裁切同尺寸計算完美無瑕 */
+  box-sizing: border-box !important;
+}
+
+/* 單個導航分頁按鈕 */
+.nav-item {
+  display: flex;
+  flex-direction: column; /* 🎯 上下直立式排列 (Icon 在上，文字在下) */
+  align-items: center;
+  justify-content: center;
+  gap: 3px; /* Icon 與文字間的微距 */
+  height: 100%;
+  cursor: pointer;
+  color: #888888; /* 預設未選中的低調灰色 */
+  transition: all 0.2s ease;
+
+  /* 🌟 【終極去底線補丁】 */
+  text-decoration: none !important; /* 徹底殺死超連結的預設底線 */
+  border-bottom: none !important; /* 防止某些框架誤加了下邊框 */
+}
+
+/* 導航按鈕的 Icon 大細 */
+.nav-icon {
+  font-size: 22px; /* 完美適配手機屏幕的 Icon 大細 */
+  display: flex;
+  align-items: center;
+}
+
+/* 導航按鈕的文字 */
+.nav-text {
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+/* ==========================================================================
+      ✨ Active 選中狀態：與你的品牌綠色完美結合
+   ========================================================================== */
+
+/* 當按鈕被選中（帶有 .active 類名）時的樣式 */
+.nav-item.active {
+  color: #27ae60; /* 🎯 完美對齊你「漫點子」Logo 的品牌綠！ */
+}
+
+/* 選中時的 Icon 輕微放大動畫，增加點擊反饋 */
+.nav-item.active .nav-icon {
+  transform: scale(1.05);
+}
+
+/* 移上去時的輕微反饋（主要用於電腦網頁預覽） */
+.nav-item:hover:not(.active) {
+  color: #444444;
+}
+
+/* ==========================================================================
+      🧱 三列漫畫卡片瀑布流區 (Grid Layout)
+   ========================================================================== */
+
+.content-manga-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 🎯 核心：平分三列 (三列排版) */
+  gap: 12px; /* 卡片之間的精緻間距 */
+  padding: 12px 0;
+  box-sizing: border-box;
+}
+
+/* 單張漫畫卡片外殼 */
+.manga-card {
+  background-color: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* 滑鼠移上去時的微互動特效 */
+.manga-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* 🖼️ 漫畫封面容器 (控制 3:4 黃金比例) */
+.manga-cover-wrapper {
+  position: relative;
+  width: 100%;
+  padding-top: 133.33%; /* 🎯 3:4 比例鎖定 (4 / 3 * 100%) */
+  background-color: #f5f5f7;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+/* 實際封面圖片 */
+.manga-cover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 確保圖片填滿且不變形 */
+}
+
+/* 新作標籤用綠色區分 */
+.manga-badge-top.hot {
+  background-color: #27ae60; /* 完美呼應品牌綠 */
+}
+
+/* 📝 漫畫下方文字細節區 */
+.manga-detail {
+  padding: 8px 4px 4px 4px;
+}
+
+/* 漫畫標題 */
+.manga-title {
+  margin: 0 0 4px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #222222;
+  /* 💡 超出兩行自動顯示省略號 (...) */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 標籤標籤組 */
+.manga-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+/* 單個小標籤樣式 */
+.manga-sub-tag {
+  font-size: 10px;
+  color: #888888;
+  background-color: #f0f0f2;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+/* 最底部的：更新至 42 話 */
+.manga-update-status {
+  font-size: 12px;
+  color: #8a8a8f; /* 🎯 次要辅助灰色 */
+  font-weight: 400;
+  line-height: 1.4;
+  margin-top: 2px;
+}
+
+/* ==========================================================================
+      📌 完美實現大廠風：分類題材標籤「強力吸頂、絕不連動」補丁
+   ========================================================================== */
+
+.filter-section-wrapper {
+  width: 100%;
+  max-width: 460px;
+  background: #fff;
+  z-index: 1000;
+}
+
+/* 強制將 wrapper 固定在頂部 */
+.header-and-filter-sticky-wrapper {
+  position: fixed !important;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%); /* 確保在手機殼中央 */
+  width: 100%;
+  max-width: 460px;
+  z-index: 1000;
+  background-color: #fff;
+  padding-top: 11px !important; /* 👈 加大頂部留白，把整個白色面板往上/外撐開 */
+  padding-bottom: 8px !important; /* 👈 微調底部留白，讓下方的 Filter 也有呼吸空間 */
+}
+
+/* 修改這個 */
+.content-manga-grid {
+  /* 數值必須等於你 header + filter 的總高度，例如 200px */
+  padding-top: 240px !important;
+  padding-bottom: 20px;
+}
+/* 3. 【修復手機比例】確保所有固定元素嚴格遵守 phone-container 的 460px */
+.bottom-nav-bar,
+.filter-section-wrapper,
+.header-and-filter-sticky-wrapper {
+  /* 確保它們永遠不會超出 phone-container 的範圍 */
+  width: 100%;
+  max-width: 460px;
+  box-sizing: border-box;
+  padding-left: 11px !important; /* 🎯 強制補回左邊的安全防線 */
+  padding-right: 11px !important; /* 🎯 強制補回右邊的安全防線 */
+}
+
+/* ⏳ 底部滾動載入中文字樣式 */
+.loading-text-container {
+  width: 100% !important;
+  text-align: center !important;
+  font-size: 14px !important;
+  color: #888888 !important; /* 🎯 暫時改用亮眼嘅橙色/或者是你喜歡嘅顏色，方便測試睇唔睇到 */
+  font-weight: bold !important;
+  letter-spacing: 1px;
+
+  /* padding-bottom 給足 60px，確保文字一定會被推上去，高過底部導航欄 */
+  padding: 15px 0 60px 0 !important;
+
+  box-sizing: border-box !important;
+
+  /* 🎬 預設先隱藏 */
+  display: none !important;
+}
+
+/* 🚀 當 JS 注入 active class 時，強制以 block 形式橫跨全寬顯示 */
+.loading-text-container.active {
+  display: block !important;
+}
+
+/* 📱 響應式防護線：當手機螢幕寬度低過 414px 時自動觸發 */
+@media screen and (max-width: 414px) {
+  /* 這裡假設你的 HTML 標籤有帶有 data 屬性，或者直接針對特定標籤 */
+  /* 最稳陣嘅做法係喺 HTML 幫搞笑標籤加個 class（例如 .tag-funny），然後喺度寫： */
+  .tag-funny {
+    display: none !important;
+  }
+}
+
+/* 🏃‍♂️ 模擬努力奔跑嘅小動畫：上下輕微彈跳 + 透明度呼吸 */
+@keyframes runningPulse {
+  0% {
+    transform: translateY(0);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(-4px); /* 向上彈起少少 */
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 0.6;
+  }
+}
+
+/* 當文字亮起（.active）時，自動觸發 1.2 秒的無限循環動畫 */
+.loading-text-container.active {
+  display: block !important;
+  animation: runningPulse 1.2s infinite ease-in-out !important;
+
+  /* 順便優化一下字體顏色，用一種類似動漫警告或者比較活潑嘅粉橘色/深灰色 */
+  color: #888888 !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+/* ----------------- 🛠️ phone-container 零縫隙微調 ----------------- */
+.phone-container2 {
+  width: 100%;
+  max-width: 460px; /* 保持你設定的 460px */
+  height: 100svh; /* 撐滿整個可視高度 */
+  background-color: var(--bg-color);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+  /* ➔ 核心關鍵：鎖死外殼左右，只准內部垂直流暢滾動 */
+  overflow-x: hidden; 
+  overflow-y: hidden;
+}
+
+.rank-card2:nth-child(n + 4) .rank-num2 {
+  font-size: 26px; /* 從 38px 縮小到 26px */
+}
+
+/*ranking.html: */
+.ranking-header2 {
+  padding: 10px 15px;
+  background-color: var(--bg-color);
+  border-bottom: 1px solid #eee;
+}
+
+.header-top2 {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.back-btn2 {
+  text-decoration: none;
+  color: var(--text-main);
+  font-size: 18px;
+}
+
+.main-types2 .type-item2 {
+  margin-right: 15px;
+  font-size: 16px;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.main-types2 .type-item2.active {
+  color: var(--text-main);
+  font-weight: bold;
+  border-bottom: 2px solid var(--text-main);
+}
+
+.main-content2 {
+  display: flex;
+  flex: 1;
+  overflow: hidden; /* 防止外層溢出 */
+}
+
+.sidebar2 {
+  width: 80px;
+  background-color: var(--sidebar-bg);
+  overflow-y: auto;
+}
+
+.sidebar-item2 {
+  padding: 15px 10px;
+  font-size: 14px;
+  text-align: center;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.sidebar-item2.active {
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  font-weight: bold;
+}
+
+/* 右側獨立滾動區優化 */
+.list-container2 {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto; /* 啟用獨立垂直滾動 */
+  -webkit-overflow-scrolling: touch; /* 優化 iOS 滾動流暢度 */
+}
+
+.list-desc2 {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  background: #f8f9fa;
+  padding: 6px;
+  border-radius: 4px;
+}
+
+.ranking-list2 {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 20px; /* 底部留白，方便滾動 */
+}
+
+/* 排名卡片樣式 */
+.rank-card2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+}
+
+.rank-num2 {
+  width: 25px;
+  font-size: 38px;
+  font-weight: bold;
+  text-align: center;
+  font-style: italic;
+}
+
+/* 前三名顏色凸顯 */
+.rank-card2:nth-child(1) .rank-num2 {
+  color: var(--rank-top-color);
+}
+.rank-card2:nth-child(2) .rank-num2 {
+  color: var(--rank-top-color);
+}
+.rank-card2:nth-child(3) .rank-num2 {
+  color: var(--rank-top-color);
+}
+.rank-card2:nth-child(n + 4) .rank-num2 {
+  color: var(--rank-other-color);
+  font-size: 24px;
+}
+
+.cover-wrapper2 img {
+  width: 50px;
+  height: 68px;
+  object-fit: cover;
+  border-radius: 4px;
+  display: block;
+}
+
+.item-detail2 {
+  flex: 1;
+}
+
+.item-title2 {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.item-info-text2 {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* ==========================================================================
+   搜尋頁面專用樣式 (search.html)
+   ========================================================================== */
+
+/* 頂部搜尋欄外殼 */
+.search-header2 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 15px;
+  background-color: var(--bg-color, #ffffff);
+  padding-top: 11px !important;
+}
+
+/* 搜尋輸入框包裹區（純作排版，不設底色） */
+.search-input-wrap2 {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+/* ➔ 最新修正：精準控制你的灰色圓角搜尋欄 */
+.search-bar-container2 {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background-color: #f5f5f5; /* 順利呈現灰色底色 */
+  padding: 8px 14px;
+  border-radius: 20px;       /* 圓角效果 */
+  gap: 8px;                  /* 圖標同輸入框之間嘅間距 */
+  box-sizing: border-box;
+}
+
+/* 放大鏡圖標樣式 (iconify-icon) */
+.search-bar-icon {
+  color: #a4b0be;            /* 經典淺灰色 */
+  font-size: 16px;           /* 圖標大小 */
+  display: flex;
+  align-items: center;
+}
+
+/* 搜尋輸入框本身 */
+.search-input2 {
+  flex: 1;
+  border: none;
+  background: transparent;   /* 必須保持透明，否則會有一塊白色遮住灰色底色 */
+  font-size: 14px;
+  outline: none;             /* 點擊時不顯示藍色邊框 */
+  color: var(--text-main, #2f3542);
+}
+
+/* 取消按鈕 */
+.cancel-btn2 {
+  border: none;
+  background: transparent;
+  font-size: 15px;
+  color: var(--text-main, #2f3542);
+  cursor: pointer;
+  padding: 0 5px;
+  white-space: nowrap;
+}
+
+/* 主體內容滾動區 */
+.search-content2 {
+  flex: 1;
+  overflow-y: auto;
+  padding: 15px;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y; /* ➔ 終極神技：告訴手機瀏覽器，這區域「只接受 Y 軸（垂直）手勢」！ */
+}
+
+/* 每個大區塊（歷史、猜你想搜、熱門） */
+.search-section2 {
+  margin-bottom: 25px;
+}
+
+.section-title-wrap2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.section-title2 {
+  font-size: 15px;
+  font-weight: bold;
+  margin: 0;
+  color: var(--text-main, #2f3542);
+}
+
+/* ✕ 清除歷史記錄按鈕 */
+.delete-history-btn2 {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  color: #a4b0be;
+  padding: 0;
+}
+
+/* 標籤橫向列表 */
+.tag-list2 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* 單個標籤樣式 */
+.tag-item2 {
+  background-color: #f5f5f5;
+  padding: 6px 14px;
+  border-radius: 15px;
+  font-size: 13px;
+  color: #57606f;
+  cursor: pointer;
+}
+
+/* 帶有小圖標的標籤（例如 㗊 猫系） */
+.icon-tag2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ==========================================================================
+   核心：熱門搜索雙排網格佈局
+   ========================================================================== */
+.hot-search-grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 左右平分兩列 */
+  column-gap: 15px;               /* 左右卡片間距 */
+  row-gap: 16px;                  /* 上下卡片間距 */
+  margin-top: 15px;
+}
+
+/* 單個熱門漫畫卡片 */
+.hot-item2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+}
+
+/* 排名數字基本樣式 */
+.hot-rank2 {
+  width: 18px;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  font-style: italic;
+}
+
+/* 前三名高亮紅色/橙色，4名之後變灰色 */
+.hot-rank2.rank-1 { color: #ff4d4d; }
+.hot-rank2.rank-2 { color: #ffa502; }
+.hot-rank2.rank-3 { color: #eccc68; }
+.hot-rank2:not(.rank-1):not(.rank-2):not(.rank-3) { color: #ced6e0; }
+
+/* 漫畫封面 */
+.hot-cover2 img {
+  width: 45px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+  display: block;
+}
+
+/* 右側文字細節 */
+.hot-detail2 {
+  flex: 1;
+  min-width: 0; 
+}
+
+/* 漫畫標題樣式 */
+.hot-title2 {
+  margin: 0 0 4px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main, #2f3542);
+  
+  /* ➔ 1. 強制鎖死寬度大約喺 8 個中文字左右（1ch = 1個英文字母，2ch ≒ 1個中文字） */
+  max-width: 16ch; 
+  
+  /* ➔ 2. 開啟 CSS 多行文本截斷神技 */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;        /* ➔ 超出兩行嘅字直接隱藏並變點點點 */
+  
+  /* 註：因為用了 -webkit-box 排版，如果入面有紅色箭頭 inline 標籤， */
+  /* 它會極之自然咁跟住字尾走，或者在第二行點點點後面。 */
+}
+
+/* 紅色上升小箭頭 */
+.trend-arrow2 {
+  background-color: #ff4d4d;
+  color: #fff;
+  font-size: 9px;
+  padding: 1px 3px;
+  border-radius: 2px;
+  font-style: normal;
+  font-weight: bold;
+  line-height: 1;
+}
+
+/* 現代 / 古風 等副標題文字 */
+.hot-meta2 {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-muted, #999999);
+}
+
+/* ==========================================================================
+   搜尋頁面廣告專用樣式 (Banner Ad)
+   ========================================================================== */
+
+.search-ad-banner2 {
+  position: relative;
+  margin-bottom: 25px; /* ➔ 控制廣告同下方「熱門搜索」之間嘅間距 */
+  width: 100%;
+  border-radius: 12px; /* ➔ 幫廣告加上順眼嘅圓角 */
+  overflow: hidden;    /* 確保裡面的圖片超出圓角時會被裁切 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* 淡淡的陰影，增加層次感 */
+}
+
+/* 廣告圖片本身 */
+.ad-image2 {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;   /* 確保圖片比例不會變形 */
+}
+
+/* 畫面右下角低調的「广告」小標籤 (仿照真 App 效果) */
+.ad-badge2 {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  background-color: rgba(0, 0, 0, 0.4); /* 半透明黑色背景 */
+  color: #ffffff;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transform: scale(0.9); /* 等字體顯得更小、更精緻 */
+  pointer-events: none;  /* 點擊標籤時依然能觸發廣告跳轉 */
+}
+
